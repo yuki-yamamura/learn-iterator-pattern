@@ -1,5 +1,5 @@
 interface MyIterator<T> {
-  hasNext: boolean;
+  hasNext: () => boolean;
   next: () => T;
 }
 
@@ -7,79 +7,78 @@ interface MyIterable<T> {
   iterator: () => MyIterator<T>;
 }
 
-type Pikumin = {
+type Pikmin = {
   color: "red" | "blue" | "yellow";
 };
 
-class PikuminIterator implements MyIterator<Pikumin> {
+class PikminIterator implements MyIterator<Pikmin> {
   #index: number = 0;
-  #pikuminGroup: PikuminGroup;
+  #pikminGroup: PikminGroup;
 
-  constructor(pikuminGroup: PikuminGroup) {
-    this.#pikuminGroup = pikuminGroup;
+  constructor(pikminGroup: PikminGroup) {
+    this.#pikminGroup = pikminGroup;
   }
 
-  get hasNext() {
-    return this.#index < this.#pikuminGroup.getLength();
+  hasNext() {
+    return this.#index < this.#pikminGroup.getLength();
   }
 
   next() {
-    if (!this.hasNext) {
-      throw new Error("There's no more Pikumin.");
+    if (!this.hasNext()) {
+      throw new Error("There's no more Pikmin.");
     }
-    const pikumin = this.#pikuminGroup.getPikuminAt(this.#index);
+    const pikmin = this.#pikminGroup.getPikminAt(this.#index);
     this.#index++;
-    return pikumin;
+    return pikmin;
   }
 }
 
-class PikuminGroup implements MyIterable<Pikumin> {
-  #pikumins: Map<number, Pikumin>;
-  iterator = () => new PikuminIterator(this);
+class PikminGroup implements MyIterable<Pikmin> {
+  #pikmins: Map<number, Pikmin>;
+  iterator = () => new PikminIterator(this);
 
-  constructor(pikumins: Map<number, Pikumin>) {
-    this.#pikumins = pikumins;
+  constructor(pikmins: Map<number, Pikmin>) {
+    this.#pikmins = pikmins;
   }
 
   getLength() {
-    return this.#pikumins.size;
+    return this.#pikmins.size;
   }
 
-  getPikuminAt(index: number) {
-    const pikumin = this.#pikumins.get(index);
-    if (!pikumin) {
-      throw new Error("There's no more Pikumin.");
+  getPikminAt(index: number) {
+    const pikmin = this.#pikmins.get(index);
+    if (!pikmin) {
+      throw new Error("There's no more Pikmin.");
     }
-    return pikumin;
+    return pikmin;
   }
 }
 
 class Player {
-  #pikuminGroup: PikuminGroup;
+  #pikminGroup: PikminGroup;
 
-  constructor(pikuminGroup: PikuminGroup) {
-    this.#pikuminGroup = pikuminGroup;
+  constructor(pikminGroup: PikminGroup) {
+    this.#pikminGroup = pikminGroup;
   }
 
-  throwAllPikumin() {
-    const iterator = this.#pikuminGroup.iterator();
-    if (!iterator.hasNext) {
+  throwAllPikmins() {
+    const iterator = this.#pikminGroup.iterator();
+    if (!iterator.hasNext()) {
       console.log("Missed!");
     }
-    while (iterator.hasNext) {
-      const pikumin = iterator.next();
-      console.log(`Threw a ${pikumin.color} pikumin.`);
+    while (iterator.hasNext()) {
+      const pikmin = iterator.next();
+      console.log(`Threw a ${pikmin.color} pikmin.`);
     }
   }
 }
 
-//
-const pikuminMap = new Map([
+const pikminMap = new Map([
   [0, { color: "red" }],
   [1, { color: "red" }],
   [2, { color: "blue" }],
   [3, { color: "yellow" }],
 ] as const);
-const pikuminGroup = new PikuminGroup(pikuminMap);
-const player = new Player(pikuminGroup);
-player.throwAllPikumin();
+const pikminGroup = new PikminGroup(pikminMap);
+const player = new Player(pikminGroup);
+player.throwAllPikmins();
