@@ -25,7 +25,7 @@ class PikuminIterator implements MyIterator<Pikumin> {
 
   next() {
     if (!this.hasNext) {
-      throw new Error("There's no more Pikumin");
+      throw new Error("There's no more Pikumin.");
     }
     const pikumin = this.#pikuminGroup.getPikuminAt(this.#index);
     this.#index++;
@@ -34,19 +34,23 @@ class PikuminIterator implements MyIterator<Pikumin> {
 }
 
 class PikuminGroup implements MyIterable<Pikumin> {
-  #pikumins: Pikumin[];
+  #pikumins: Map<number, Pikumin>;
   iterator = () => new PikuminIterator(this);
 
-  constructor(pikumins: Pikumin[]) {
+  constructor(pikumins: Map<number, Pikumin>) {
     this.#pikumins = pikumins;
   }
 
   getLength() {
-    return this.#pikumins.length;
+    return this.#pikumins.size;
   }
 
   getPikuminAt(index: number) {
-    return this.#pikumins[index];
+    const pikumin = this.#pikumins.get(index);
+    if (!pikumin) {
+      throw new Error("There's no more Pikumin.");
+    }
+    return pikumin;
   }
 }
 
@@ -70,12 +74,12 @@ class Player {
 }
 
 //
-const pikumins: Pikumin[] = [
-  { color: "red" },
-  { color: "red" },
-  { color: "blue" },
-  { color: "yellow" },
-];
-const pikuminGroup = new PikuminGroup(pikumins);
+const pikuminMap = new Map([
+  [0, { color: "red" }],
+  [1, { color: "red" }],
+  [2, { color: "blue" }],
+  [3, { color: "yellow" }],
+] as const);
+const pikuminGroup = new PikuminGroup(pikuminMap);
 const player = new Player(pikuminGroup);
 player.throwAllPikumin();
